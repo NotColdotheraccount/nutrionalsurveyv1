@@ -1,21 +1,22 @@
 let seconds = 0;
 let timerInterval;
-const timer = document.getElementById('timer');
+let started = false;       // prevent starting timer twice
+let isSubmitting = false;  // prevent double submission
+
 const form = document.getElementById('surveyForm');
 const surveySection = document.getElementById('surveySection');
-const confirmBtn = document.getElementById('confirmNameBtn');
-const nameField = document.getElementById('fullname');
+const consentBlock = document.getElementById('consentBlock');
+const consentYesBtn = document.getElementById('consentYesBtn');
+const consentNoBtn = document.getElementById('consentNoBtn');
+const submitBtn = form.querySelector('button[type="submit"]');
 
-// Step 1: Wait for "Confirm Name"
-confirmBtn.addEventListener('click', () => {
-    if (nameField.value.trim() === "") {
-        alert("Please enter your full name first.");
-        return;
-    }
+// Consent: Yes -> start timer & show survey
+consentYesBtn.addEventListener('click', () => {
+    if (started) return;
+    started = true;
 
-    // Lock name input
-    nameField.readOnly = true;
-    confirmBtn.style.display = "none";
+    // hide consent UI
+    consentBlock.style.display = "none";
 
     // Start timer (hidden but active)
     timerInterval = setInterval(() => {
@@ -26,13 +27,24 @@ confirmBtn.addEventListener('click', () => {
     surveySection.style.display = "block";
 });
 
-// Step 2: Handle submission
+// Consent: No -> thank you popup, do not proceed
+consentNoBtn.addEventListener('click', () => {
+    alert("Thank you for your time.");
+    // You can optionally redirect them away, e.g.:
+    // window.location.href = "https://google.com";
+});
+
+// Submit handler
 form.addEventListener('submit', async function(e) {
     e.preventDefault();
+    if (isSubmitting) return;
+    isSubmitting = true;
+    submitBtn.disabled = true;
+
     clearInterval(timerInterval);
 
     const formData = {
-        name: nameField.value,
+        name: "",            // no name now
         buy: form.buy.value,
         time: seconds
     };
@@ -50,7 +62,10 @@ form.addEventListener('submit', async function(e) {
         window.location.href = redirectURL;
 
     } catch (error) {
-        alert("There was an error submitting your response.");
         console.error(error);
+        alert("There was an error submitting your response. Please try again.");
+        // allow retry
+        isSubmitting = false;
+        submitBtn.disabled = false;
     }
 });
