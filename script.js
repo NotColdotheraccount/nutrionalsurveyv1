@@ -17,15 +17,13 @@ confirmBtn.addEventListener('click', () => {
     nameField.readOnly = true;
     confirmBtn.style.display = "none";
 
-    // Show timer and survey section
-    timer.style.display = "block";
-    surveySection.style.display = "block";
-
-    // Start timer
+    // Start timer (hidden but active)
     timerInterval = setInterval(() => {
         seconds++;
-        timer.textContent = `Time taken: ${seconds}s`;
     }, 1000);
+
+    // Show survey section
+    surveySection.style.display = "block";
 });
 
 // Step 2: Handle submission
@@ -48,12 +46,8 @@ form.addEventListener('submit', async function(e) {
             body: new URLSearchParams(formData)
         });
 
-        // ✅ Redirect to post-survey after submission
+        // Redirect to post-survey after submission
         window.location.href = redirectURL;
-
-        // (Optional alternative: small delay)
-        // alert(`Thank you, ${nameField.value}! You took ${seconds} seconds.`);
-        // setTimeout(() => { window.location.replace(redirectURL); }, 500);
 
     } catch (error) {
         alert("There was an error submitting your response.");
